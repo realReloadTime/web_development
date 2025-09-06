@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
     DATABASE_URL: str = getenv('DATABASE_URL')
-    VERSION: str = "1.1.0"
+    IS_DEBUG: int = getenv('IS_DEBUG')
+
+    VERSION: str = "0.0.1"
     DOMAIN: str = "localhost:8000"
