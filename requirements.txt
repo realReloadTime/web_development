@@ -2,3 +2,5 @@ fastapi[all]
 alembic
 asyncpg
 sqlalchemy
+python-dotenv
+uvicorn
