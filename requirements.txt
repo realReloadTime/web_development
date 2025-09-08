@@ -1,6 +1,11 @@
-fastapi[all]
+python-dotenv
+
 alembic
 sqlalchemy
 aiosqlite
-python-dotenv
+
+fastapi[all]
 uvicorn
+
+pydantic
+pydantic_settings
