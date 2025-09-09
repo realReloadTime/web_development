@@ -14,19 +14,23 @@ class GenreRepository:
         async with get_async_session() as session:
             new_genre = Genre(**fields)
             try:
-                await session.add(Genre)
+                session.add(new_genre)
                 await session.flush()
-                new_genre = await session.execute(select(Genre).where(Genre.id == new_genre.id))
+                await session.refresh(new_genre)
             except IntegrityError as error:
                 raise ValueError(f'Error on genre creation: {str(error)}')
         return new_genre
 
 
     @staticmethod
-    async def get_genre(genre_id: int) -> Genre | None:
+    async def get_genre(genre_id: int | None) -> Genre | list[Genre] | None:
         async with get_async_session(False) as session:
-            genre = await session.execute(select(Genre).where(Genre.id == genre_id))
-            return genre.scalar_one_or_none()
+            if genre_id is not None:
+                genre = await session.execute(select(Genre).where(Genre.id == genre_id))
+                return genre.scalar_one_or_none()
+            else:
+                genres = await session.execute(select(Genre))
+                return genres.scalars().all()
 
 
     @staticmethod
@@ -42,7 +46,7 @@ class GenreRepository:
             else:
                 raise ValueError('Error on genre update - genre not found')
             await session.flush()
-            genre = await session.execute(select(Genre).where(Genre.id == genre_id))
+            await session.refresh(genre)
         return genre
 
 
@@ -63,21 +67,27 @@ class GenreService:
 
     async def create_genre(self, data: GenreFull | GenreDefault) -> GenreFull:
         result = await self.repository.create_genre(**data.model_dump())
-        serialized = GenreFull.model_validate(result)
-        return serialized
+        return GenreFull.model_validate(result)
 
-    async def get_genre(self, genre_id: int) -> GenreFull | None:
+    async def get_genre(self, genre_id: int = None) -> GenreFull | list[GenreFull] | None:
         result = await self.repository.get_genre(genre_id)
         if result is None:
             return None
-        serialized = GenreFull.model_validate(result)
-        return serialized
+        if genre_id is None:
+            return [GenreFull.model_validate(genre) for genre in result]
+        return GenreFull.model_validate(result)
 
-    async def update_genre(self, genre_id: int, data: GenreFull) -> GenreFull:
+    async def update_genre(self, genre_id: int, data: GenreFull | GenreDefault) -> GenreFull:
         result = await self.repository.update_genre(genre_id, **data.model_dump())
-        serialized = GenreFull.model_validate(result)
-        return serialized
+        return GenreFull.model_validate(result)
 
     async def delete_genre(self, genre_id: int) -> bool:
-        result = await self.repository.delete_genre(genre_id)
-        return result
+        return await self.repository.delete_genre(genre_id)
+
+
+async def get_genre_service() -> GenreService:
+    return GenreService(await get_genre_repository())
+
+
+async def get_genre_repository() -> GenreRepository:
+    return GenreRepository()

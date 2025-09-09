@@ -14,19 +14,23 @@ class AuthorRepository:
         async with get_async_session() as session:
             new_author = Author(**fields)
             try:
-                await session.add(Author)
+                session.add(new_author)
                 await session.flush()
-                new_author = await session.execute(select(Author).where(Author.id == new_author.id))
+                await session.refresh(new_author)
             except IntegrityError as error:
                 raise ValueError(f'Error on author creation: {str(error)}')
         return new_author
 
 
     @staticmethod
-    async def get_author(author_id: int) -> Author | None:
+    async def get_author(author_id: int | None) -> Author | list[Author] | None:
         async with get_async_session(False) as session:
-            author = await session.execute(select(Author).where(Author.id == author_id))
-            return author.scalar_one_or_none()
+            if author_id is not None:
+                author = await session.execute(select(Author).where(Author.id == author_id))
+                return author.scalar_one_or_none()
+            else:
+                authors = await session.execute(select(Author))
+                return authors.scalars().all()
 
 
     @staticmethod
@@ -42,7 +46,7 @@ class AuthorRepository:
             else:
                 raise ValueError('Error on author update - author not found')
             await session.flush()
-            author = await session.execute(select(Author).where(Author.id == author_id))
+            await session.refresh(author)
         return author
 
 
@@ -63,21 +67,27 @@ class AuthorService:
 
     async def create_author(self, data: AuthorFull | AuthorDefault) -> AuthorFull:
         result = await self.repository.create_author(**data.model_dump())
-        serialized = AuthorFull.model_validate(result)
-        return serialized
+        return AuthorFull.model_validate(result)
 
-    async def get_author(self, author_id: int) -> AuthorFull | None:
+    async def get_author(self, author_id: int = None) -> AuthorFull | list[AuthorFull] | None:
         result = await self.repository.get_author(author_id)
         if result is None:
             return None
-        serialized = AuthorFull.model_validate(result)
-        return serialized
+        if author_id is None:
+            return [AuthorFull.model_validate(author) for author in result]
+        return AuthorFull.model_validate(result)
 
-    async def update_author(self, author_id: int, data: AuthorFull) -> AuthorFull:
+    async def update_author(self, author_id: int, data: AuthorFull | AuthorDefault) -> AuthorFull:
         result = await self.repository.update_author(author_id, **data.model_dump())
-        serialized = AuthorFull.model_validate(result)
-        return serialized
+        return AuthorFull.model_validate(result)
 
     async def delete_author(self, author_id: int) -> bool:
-        result = await self.repository.delete_author(author_id)
-        return result
+        return await self.repository.delete_author(author_id)
+
+
+async def get_author_service() -> AuthorService:
+    return AuthorService(await get_author_repository())
+
+
+async def get_author_repository() -> AuthorRepository:
+    return AuthorRepository()

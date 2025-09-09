@@ -1,9 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class AuthorDefault(BaseModel):
     first_name: str
     second_name: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AuthorFull(AuthorDefault):

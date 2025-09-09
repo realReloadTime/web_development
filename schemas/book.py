@@ -1,9 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class BookDefault(BaseModel):
     title: str
     author: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookFull(BookDefault):
