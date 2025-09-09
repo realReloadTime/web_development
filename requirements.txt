@@ -5,6 +5,7 @@ sqlalchemy
 aiosqlite
 
 fastapi[all]
+python-multipart
 uvicorn
 
 pydantic

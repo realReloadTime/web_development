@@ -7,11 +7,11 @@ from schemas.genre import GenreFull, GenreDefault
 
 
 class GenreRepository:
-    @staticmethod
-    async def create_genre(**fields) -> Genre | None:
+    async def create_genre(self, **fields) -> Genre | None:
         if 'id' in fields: del fields['id']
 
         async with get_async_session() as session:
+            await self._check_name_unique(session, fields['name'])
             new_genre = Genre(**fields)
             try:
                 session.add(new_genre)
@@ -33,11 +33,11 @@ class GenreRepository:
                 return genres.scalars().all()
 
 
-    @staticmethod
-    async def update_genre(genre_id: int, **fields) -> Genre | None:
+    async def update_genre(self, genre_id: int, **fields) -> Genre | None:
         if 'id' in fields: del fields['id']
 
         async with get_async_session() as session:
+            await self._check_name_unique(session, fields['name'], genre_id)
             genre = await session.execute(select(Genre).where(Genre.id == genre_id))
             genre = genre.scalar_one_or_none()
             if genre is not None:
@@ -59,6 +59,15 @@ class GenreRepository:
                 await session.delete(genre)
                 return True
         return False
+
+    @staticmethod
+    async def _check_name_unique(session, name, exclude_genre_id=None):
+        query = select(Genre).where(Genre.name == name)
+        if exclude_genre_id is not None:
+            query = query.where(Genre.id != exclude_genre_id)
+        result = await session.execute(query)
+        if result.scalar_one_or_none() is not None:
+            raise AttributeError(f"Genre with name '{name}' already exists")
 
 
 class GenreService:

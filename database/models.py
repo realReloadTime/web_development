@@ -29,4 +29,4 @@ class Author(Base):
 
 
 class Genre(Base):
-    name: Mapped[str]
+    name: Mapped[uniq_str]
