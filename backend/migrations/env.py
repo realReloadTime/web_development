@@ -6,7 +6,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-from config import Settings
+from backend.config import Settings
 
 stgs = Settings()
 
@@ -20,7 +20,8 @@ config.set_main_option("sqlalchemy.url", stgs.DATABASE_URL)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from database.models import Base, Book, User, Genre, Author
+from backend.database.models import Base
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

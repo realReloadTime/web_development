@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
+
 class AuthorDefault(BaseModel):
     first_name: str
     second_name: str

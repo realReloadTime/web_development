@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Form
+from fastapi import APIRouter, Form, Depends
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 
-from logic.genre import get_genre_service
-from schemas.genre import GenreFull, GenreDefault
+from backend.service.genre import get_genre_service
+from backend.schemas.genre import GenreFull, GenreDefault
+from backend.security.authorization import get_current_user
 
-router = APIRouter(prefix='/genres')
+router = APIRouter(prefix='/genres', tags=['genre'])
 
 
 @router.get('', response_model=list[GenreFull])
@@ -24,7 +25,8 @@ async def get_genre(request: Request, genre_id: int):
 
 
 @router.post('/{genre_id}', response_model=GenreFull)
-async def create_genre(request: Request, name: str = Form(...)):
+async def create_genre(request: Request, name: str = Form(...),
+                       current_user = Depends(get_current_user)):
     genre = GenreDefault(name=name)
     service = await get_genre_service()
     try:
@@ -34,7 +36,8 @@ async def create_genre(request: Request, name: str = Form(...)):
 
 
 @router.put('/{genre_id}', response_model=GenreFull)
-async def update_genre(request: Request, genre_id: int, genre: GenreDefault):
+async def update_genre(request: Request, genre_id: int, genre: GenreDefault,
+                       current_user = Depends(get_current_user)):
     service = await get_genre_service()
     try:
         return await service.update_genre(genre_id, genre)
@@ -45,6 +48,7 @@ async def update_genre(request: Request, genre_id: int, genre: GenreDefault):
 
 
 @router.delete('/{genre_id}', status_code=204)
-async def delete_genre(request: Request, genre_id: int):
+async def delete_genre(request: Request, genre_id: int,
+                       current_user = Depends(get_current_user)):
     service = await get_genre_service()
     await service.delete_genre(genre_id)

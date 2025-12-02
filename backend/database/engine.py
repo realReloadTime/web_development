@@ -5,7 +5,7 @@ from sqlalchemy import Text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker, AsyncAttrs
 from sqlalchemy.orm import mapped_column, DeclarativeBase, Mapped, declared_attr
 
-from config import Settings
+from backend.config import Settings
 
 settings = Settings()
 

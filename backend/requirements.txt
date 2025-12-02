@@ -10,3 +10,7 @@ uvicorn
 
 pydantic
 pydantic_settings
+
+passlib
+python-jose
+bcrypt==4.0.0

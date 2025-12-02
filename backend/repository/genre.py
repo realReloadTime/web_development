@@ -1,9 +1,8 @@
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 
-from database.engine import get_async_session
-from database.models import Genre
-from schemas.genre import GenreFull, GenreDefault
+from backend.database.engine import get_async_session
+from backend.database.models import Genre
 
 
 class GenreRepository:
@@ -21,7 +20,6 @@ class GenreRepository:
                 raise ValueError(f'Error on genre creation: {str(error)}')
         return new_genre
 
-
     @staticmethod
     async def get_genre(genre_id: int | None) -> Genre | list[Genre] | None:
         async with get_async_session(False) as session:
@@ -31,7 +29,6 @@ class GenreRepository:
             else:
                 genres = await session.execute(select(Genre))
                 return genres.scalars().all()
-
 
     async def update_genre(self, genre_id: int, **fields) -> Genre | None:
         if 'id' in fields: del fields['id']
@@ -48,7 +45,6 @@ class GenreRepository:
             await session.flush()
             await session.refresh(genre)
         return genre
-
 
     @staticmethod
     async def delete_genre(genre_id: int) -> bool:
@@ -68,34 +64,6 @@ class GenreRepository:
         result = await session.execute(query)
         if result.scalar_one_or_none() is not None:
             raise AttributeError(f"Genre with name '{name}' already exists")
-
-
-class GenreService:
-    def __init__(self, genre_repository: GenreRepository):
-        self.repository = genre_repository
-
-    async def create_genre(self, data: GenreFull | GenreDefault) -> GenreFull:
-        result = await self.repository.create_genre(**data.model_dump())
-        return GenreFull.model_validate(result)
-
-    async def get_genre(self, genre_id: int = None) -> GenreFull | list[GenreFull] | None:
-        result = await self.repository.get_genre(genre_id)
-        if result is None:
-            return None
-        if genre_id is None:
-            return [GenreFull.model_validate(genre) for genre in result]
-        return GenreFull.model_validate(result)
-
-    async def update_genre(self, genre_id: int, data: GenreFull | GenreDefault) -> GenreFull:
-        result = await self.repository.update_genre(genre_id, **data.model_dump())
-        return GenreFull.model_validate(result)
-
-    async def delete_genre(self, genre_id: int) -> bool:
-        return await self.repository.delete_genre(genre_id)
-
-
-async def get_genre_service() -> GenreService:
-    return GenreService(await get_genre_repository())
 
 
 async def get_genre_repository() -> GenreRepository:
