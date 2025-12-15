@@ -1,0 +1,120 @@
+.book-item {
+  background: white;
+  border: 1px solid #ecf0f1;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: box-shadow 0.3s, transform 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.book-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.book-item.reserved {
+  border-left: 4px solid #e74c3c;
+  background-color: #fdf2f2;
+}
+
+.book-title {
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.book-details {
+  flex-grow: 1;
+}
+
+.book-details p {
+  margin: 8px 0;
+  color: #34495e;
+  font-size: 0.95rem;
+}
+
+.book-details strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.reserved-info {
+  color: #e74c3c !important;
+  font-weight: 600;
+  margin-top: 15px !important;
+  padding-top: 10px;
+  border-top: 1px solid #e74c3c;
+}
+
+.book-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ecf0f1;
+}
+
+.btn-edit,
+.btn-delete,
+.btn-reserve {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+  flex: 1;
+  min-width: 100px;
+}
+
+.btn-edit {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #2980b9;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #c0392b;
+}
+
+.btn-reserve {
+  background-color: #27ae60;
+  color: white;
+}
+
+.btn-reserve:hover {
+  background-color: #219653;
+}
+
+.btn-reserve.btn-unreserve {
+  background-color: #f39c12;
+}
+
+.btn-reserve.btn-unreserve:hover {
+  background-color: #d68910;
+}
+
+.btn-reserve:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.login-prompt {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  width: 100%;
+}

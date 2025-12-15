@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict
 class BookDefault(BaseModel):
     title: str
     author: int
+    genre: int | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

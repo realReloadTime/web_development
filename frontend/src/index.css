@@ -1,0 +1,33 @@
+/* Базовые стили сброса */
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Убрать стандартные стили для кнопок */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: 100%;
+  margin: 0;
+}
+
+/* Убрать подчеркивание ссылок */
+a {
+  text-decoration: none;
+}
+
+/* Убрать маркеры списков */
+ul, ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
