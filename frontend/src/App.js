@@ -1,64 +1,31 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar/Navbar';
+import BookList from './components/BookList/BookList';
 import Login from './components/Login/Login';
 import Register from './components/Register/Register';
-import BookList from './components/BookList/BookList';
 import BookingList from './components/BookingList/BookingList';
-import './App.css';
-
-const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="app-loading">
-        <div className="loading-spinner"></div>
-      </div>
-    );
-  }
-
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
-
-function AppContent() {
-  return (
-    <Router>
-      <div className="App">
-        <Navbar />
-        <div className="app-content">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <BookList />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/bookings"
-              element={
-                <PrivateRoute>
-                  <BookingList />
-                </PrivateRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </div>
-      </div>
-    </Router>
-  );
-}
+import ChatPage from './pages/ChatPage';
 
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <Router>
+        <div className="App">
+          <Navbar />
+          <div className="container">
+            <Routes>
+              <Route path="/" element={<BookList />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/bookings" element={<BookingList />} />
+              <Route path="/chat/*" element={<ChatPage />} /> {/* Добавлено */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </div>
+      </Router>
     </AuthProvider>
   );
 }

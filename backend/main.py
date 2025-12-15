@@ -4,13 +4,13 @@ from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 
-
 from backend.config import Settings
 from backend.controllers.user import router as user_router
 from backend.controllers.genre import router as genre_router
 from backend.controllers.book import router as book_router
 from backend.controllers.booking import router as booking_router
 from backend.controllers.author import router as author_router
+from backend.controllers.chat import router as chat_router  # Добавлено
 
 settings = Settings()
 
@@ -20,6 +20,7 @@ app.include_router(genre_router)
 app.include_router(book_router)
 app.include_router(booking_router)
 app.include_router(author_router)
+app.include_router(chat_router)
 
 app.add_middleware(
     CORSMiddleware,

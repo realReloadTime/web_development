@@ -1,5 +1,5 @@
-from sqlalchemy import ForeignKey, DateTime, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey, DateTime, func, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
 from backend.database.engine import Base, uniq_str
@@ -50,3 +50,51 @@ class Booking(Base):
 
     take_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
     end_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+
+
+class ChatRoom(Base):
+    """Комната чата"""
+    name: Mapped[str | None]  # Название комнаты (для групповых чатов)
+    is_group: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
+
+    # Отношения
+    participants = relationship("ChatParticipant", back_populates="room", cascade="all, delete-orphan")
+    messages = relationship("ChatMessage", back_populates="room", cascade="all, delete-orphan")
+
+    def __str__(self):
+        if self.is_group:
+            return f"Group Chat: {self.name or f'Room {self.id}'}"
+        return f"Private Chat: Room {self.id}"
+
+
+class ChatParticipant(Base):
+    """Участник чата"""
+    room_id: Mapped[int] = mapped_column(ForeignKey('chatrooms.id', ondelete="CASCADE"))
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete="CASCADE"))
+    joined_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
+    is_admin: Mapped[bool] = mapped_column(default=False)
+
+    # Отношения
+    room = relationship("ChatRoom", back_populates="participants", lazy="selectin")
+    user = relationship("User", lazy="selectin")
+
+    def __str__(self):
+        return f"Participant {self.user_id} in Room {self.room_id}"
+
+
+class ChatMessage(Base):
+    """Сообщение в чате"""
+    room_id: Mapped[int] = mapped_column(ForeignKey('chatrooms.id', ondelete="CASCADE"))
+    sender_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete="CASCADE"))
+    content: Mapped[str] = mapped_column(Text)
+    message_type: Mapped[str] = mapped_column(default="text")  # text, image, file, system
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
+    is_read: Mapped[bool] = mapped_column(default=False)
+
+    # Отношения
+    room = relationship("ChatRoom", back_populates="messages")
+    sender = relationship("User")
+
+    def __str__(self):
+        return f"Message {self.id} from {self.sender_id} in {self.room_id}"

@@ -134,3 +134,55 @@ export const userService = {
     method: 'DELETE'
   }),
 };
+
+export const chatService = {
+  // Получить все чаты пользователя
+  getChatRooms: () => fetchApi('/chat/rooms').then(res => res.json()),
+
+  // Получить приватный чат с пользователем (создать или получить существующий)
+  getOrCreatePrivateChat: (user2Id) =>
+    fetchApi(`/chat/private/${user2Id}`, {
+      method: 'POST'
+    }).then(res => res.json()),
+
+  // Создать групповой чат
+  createGroupChat: (name, participantIds) =>
+    fetchApi('/chat/group', {
+      method: 'POST',
+      body: JSON.stringify({
+        name,
+        participant_ids: participantIds
+      })
+    }).then(res => res.json()),
+
+  // Получить сообщения чата
+  getChatMessages: (roomId, limit = 50, offset = 0) =>
+    fetchApi(`/chat/rooms/${roomId}/messages?limit=${limit}&offset=${offset}`)
+      .then(res => res.json()),
+
+  // Получить участников чата
+  getChatParticipants: (roomId) =>
+    fetchApi(`/chat/rooms/${roomId}/participants`).then(res => res.json()),
+
+  // Добавить участника в групповой чат
+  addParticipant: (roomId, userId) =>
+    fetchApi(`/chat/rooms/${roomId}/participants/${userId}`, {
+      method: 'POST'
+    }),
+
+  // Удалить участника из чата
+  removeParticipant: (roomId, userId) =>
+    fetchApi(`/chat/rooms/${roomId}/participants/${userId}`, {
+      method: 'DELETE'
+    }),
+
+  // Получить количество непрочитанных сообщений
+  getUnreadCount: (roomId = null) => {
+    const url = roomId ? `/chat/unread?room_id=${roomId}` : '/chat/unread';
+    return fetchApi(url).then(res => res.json());
+  },
+
+  // Получить онлайн пользователей в комнате
+  getOnlineUsers: (roomId) =>
+    fetchApi(`/chat/rooms/${roomId}/online`).then(res => res.json())
+};
